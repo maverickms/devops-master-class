@@ -1,5 +1,5 @@
 apiVersion: apps/v1
-kind: ReplicaSet
+kind: Deployment
 metadata:
   labels:
     app: hello-world-rest-api
@@ -14,26 +14,20 @@ spec:
   selector:
     matchLabels:
       app: hello-world-rest-api
-  # ReplicatSet does not have the concept of strategy
-  # strategy:
-  #   rollingUpdate:
-  #     maxSurge: 25%
-  #     maxUnavailable: 25%
-  #   type: RollingUpdate
-
-  # If the image version is changed now, the replica set will not care to recycle the pods
-  # If a pod is deleted, ReplicaSet will only bring up the pod with the same old image version 
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
   # Its only the  'deployment' that cares about making sure that a container with the right
   # version is up. 'deployment' will create a new 'repelicaSet' with the new image version 
-  
-
   template:
     metadata:
       labels:
         app: hello-world-rest-api
     spec:
       containers:
-      - image: in28min/hello-world-rest-api:0.0.3.RELEASE
+      - image: in28min/hello-world-rest-api:0.0.2.RELEASE
         imagePullPolicy: IfNotPresent
         name: hello-world-rest-api
       restartPolicy: Always
