@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: hello-world-rest-api
+  name: hello-world-rest-api
+  namespace: default
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: hello-world-rest-api
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: hello-world-rest-api
+    spec:
+      containers:
+      - image: in28min/hello-world-rest-api:0.0.2.RELEASE
+        imagePullPolicy: IfNotPresent
+        name: hello-world-rest-api
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+---
+# service does not map to a Deployment, rather to a pod
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: hello-world-rest-api
+  name: hello-world-rest-api
+  namespace: default
+spec:
+  ports:
+  - nodePort: 31715
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    # label of the pod
+    app: hello-world-rest-api
+    # mostly used for web apps where sessions need to be handled on the same pod
+  sessionAffinity: None 
+  type: LoadBalancer
